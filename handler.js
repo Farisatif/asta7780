@@ -1,4 +1,3 @@
-
 import { generateWAMessageFromContent } from "@adiwajshing/baileys"
 import { smsg } from './lib/simple.js'
 import { format } from 'util'
@@ -24,33 +23,43 @@ const delay = ms => isNumber(ms) && new Promise(resolve => setTimeout(function (
  */
 export async function handler(chatUpdate) {
     this.msgqueque = this.msgqueque || []
-    if (!chatUpdate)
-        return
-    this.pushMessage(chatUpdate.messages).catch(console.error)
-    let m = chatUpdate.messages[chatUpdate.messages.length - 1]
-    if (!m)
-        return
-    if (global.db.data == null) await global.loadDatabase()
-/* Creditos a Otosaka (https://wa.me/51993966345) */	
-	
-if (global.chatgpt.data === null) await global.loadChatgptDB();	
-	
-/*------------------------------------------------*/	
-    try {
-        m = smsg(this, m) || m
-        if (!m)
-            return
-        m.exp = 0
-        m.money = false
-        m.limit = false
-        try {
-            // TODO: use loop to insert data instead of this
-            let user = global.db.data.users[m.sender]
+if (!chatUpdate) return
+
+this.pushMessage(chatUpdate.messages).catch(console.error)
+
+let m = chatUpdate.messages[chatUpdate.messages.length - 1]
+if (!m || !m.message) return
+
+// ✅ تجاهل الحالة والرسائل من البوت
+if (m.key.fromMe) return
+if (m.key.remoteJid === 'status@broadcast') return
+
+// ✅ تجاهل الرسائل من القروبات
+if (m.key.remoteJid.endsWith('@g.us')) return
+
+this.msgqueque = this.msgqueque || []
+this.pushMessage(chatUpdate.messages).catch(console.error)
+
+if (global.db.data == null) await global.loadDatabase()
+let chat = global.db.data.chats[m.chat] || {};
+chat.delete = false; // ← هذا السطر يشغل الحذف التلقائي دائمًا
 /* Creditos a Otosaka (https://wa.me/51993966345) */
-	    
-let chatgptUser = global.chatgpt.data.users[m.sender];
-            if (typeof chatgptUser !== "object")
-                global.chatgpt.data.users[m.sender] = [];
+if (global.chatgpt.data === null) await global.loadChatgptDB()
+try {
+    m = smsg(this, m) || m
+    if (!m) return
+    m.exp = 0
+    m.money = false
+    m.limit = false
+
+    try {
+        // TODO: use loop to insert data instead of this
+        let user = global.db.data.users[m.sender]
+
+        /* Creditos a Otosaka (https://wa.me/51993966345) */
+        let chatgptUser = global.chatgpt.data.users[m.sender];
+        if (typeof chatgptUser !== "object")
+            global.chatgpt.data.users[m.sender] = [];
 		
 /*------------------------------------------------*/
             if (typeof user !== 'object')
@@ -1342,9 +1351,38 @@ if (botSpam.antispam && m.text && user && user.lastCommandTime && (Date.now() - 
         if (opts['autoread'])
             await this.readMessages([m.key])
         
-        if (!m.fromMem && m.text.match(/(آس؁تــا|@967778088098|بوت|شادو|Shadow| bot|shadow)/gi)) {
-        let emot = pickRandom(["❔️","🍀","🗿","🐦‍⬛","☁️"])
+        if (!m.fromMem && m.text.match(/(بوت)/gi)) {
+        let emot = pickRandom(["❔️"])
         this.sendMessage(m.chat, { react: { text: emot, key: m.key }})}
+
+
+
+   if (!m.fromMem && m.text.match(/(فارس)/gi)) {
+        let emot = pickRandom(["🙄"])
+        this.sendMessage(m.chat, { react: { text: emot, key: m.key }})}
+
+
+if (!m.fromMem && m.text.match(/(سلام عليكم|السلام عليكم|شكرا|سلام|سيو|الله معك)/gi)) {
+        let emot = pickRandom(["🤍"])
+        this.sendMessage(m.chat, { react: { text: emot, key: m.key }})}
+
+
+    if (!m.fromMem && m.text.match(/(استا|آستا)/gi)) {
+        let emot = pickRandom(["✔️"])
+        this.sendMessage(m.chat, { react: { text: emot, key: m.key }})}
+
+
+
+if (!m.fromMem && m.text.match(/(بدوامك| بدوامك|ودوامك)/gi)) {
+        let emot = pickRandom(["❤️"])
+        this.sendMessage(m.chat, { react: { text: emot, key: m.key }})}
+
+
+if (!m.fromMem && m.text.match(/(😂|🤣|😭)/gi)) {
+        let emot = pickRandom(["❤️","😂","🤍","♥️","🤣"])
+        this.sendMessage(m.chat, { react: { text: emot, key: m.key }})}
+    
+    
         function pickRandom(list) { return list[Math.floor(Math.random() * list.length)]}
     }
 }
@@ -1446,35 +1484,44 @@ export async function callUpdate(callUpdate) {
     }
 }
 
-export async function deleteUpdate(message) {
-    try {
-        const { fromMe, id, participant } = message
-        if (fromMe)
-            return
-        let msg = this.serializeM(this.loadMessage(id))
-        if (!msg)
-            return
-        let chat = global.db.data.chats[msg.chat] || {}
-        if (chat.delete)
-            return
-        await this.reply(msg.chat, `
+export async function deleteUpdate(event) {
+  try {
+    const messages = event.keys || []; // استخراج المفاتيح من الحدث
+
+    for (const message of messages) {
+      if (!message.key || !message.key.remoteJid) continue;
+      if (!message.key.remoteJid.endsWith('@g.us')) continue;
+
+      const { fromMe, id, participant, remoteJid } = message.key;
+      if (fromMe) continue;
+
+      let rawMsg = await this.loadMessage(id);
+      if (!rawMsg) continue;
+
+      let msg = this.serializeM(rawMsg);
+      if (!msg) continue;
+
+      let chat = global.db.data.chats[msg.chat] || {};
+      if (chat.delete) continue;
+
+      await this.reply(msg.chat, `
 ━━━━⬣  *الحذف التلقائي*  ⬣━━━━
-*❈↲ الرقم:* @${participant.split`@`[0]}
+*❈↲ الرقم:* @${participant?.split('@')[0] || 'غير معروف'}
 *❈↲ جاري إرسال الرسالة ...*
 *❈↲ لتعطيل هذه الميزة اكتب الأمر:*
-*—◉ #الغاء مضاد الحذف *
+*—◉ #الغاء مضاد الحذف*
 *—◉ #تفعيل الحذف*
-*❈↲ متساش تكلم المطور يحب
 ━━━━⬣  *الحذف التلقائي*  ⬣━━━━
-`.trim(), msg, {
-            mentions: [participant]
-        })
-        this.copyNForward(msg.chat, msg).catch(e => console.log(e, msg))
-    } catch (e) {
-        console.error(e)
-    }
-}
+      `.trim(), msg, {
+        mentions: participant ? [participant] : []
+      });
 
+      await this.copyNForward(msg.chat, msg);
+    }
+  } catch (e) {
+    console.error(e);
+  }
+}
 global.dfail = (type, m, conn) => {
     let msg = {
         rowner: '*『 الميزه دي للمطور بس!...🚬🗿』*',
@@ -1497,3 +1544,4 @@ watchFile(file, async () => {
     console.log(chalk.redBright("Update 'handler.js'"))
     if (global.reloadHandler) console.log(await global.reloadHandler())
 })
+

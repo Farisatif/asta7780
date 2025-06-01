@@ -723,7 +723,7 @@
 717 verbose installManyTop reading scoped package data from /home/runner/1F-1/node_modules/@smithy/protocol-http/package.json
 718 verbose installManyTop reading scoped package data from /home/runner/1F-1/node_modules/@smithy/types/package.json
 719 verbose installManyTop reading scoped package data from /home/runner/1F-1/node_modules/@socket.io/component-emitter/package.json
-720 verbose installManyTop reading scoped package data from /home/runner/1F-1/node_modules/@adiwajshing/baileys/package.json
+720 verbose installManyTop reading scoped package data from /home/runner/1F-1/node_modules/@whiskeysockets/baileys/package.json
 721 verbose installManyTop reading scoped package data from /home/runner/1F-1/node_modules/@adiwajshing/keyed-db/package.json
 722 verbose installManyTop reading scoped package data from /home/runner/1F-1/node_modules/@discordjs/builders/package.json
 723 verbose installManyTop reading scoped package data from /home/runner/1F-1/node_modules/@discordjs/collection/package.json
