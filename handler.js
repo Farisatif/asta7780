@@ -31,7 +31,7 @@ let m = chatUpdate.messages[chatUpdate.messages.length - 1]
 if (!m || !m.message) return
 	
 if (m.key.fromMe) {
-  console.log(`📤 رسالة أرسلها البوت: ${m.text || m.message}`);
+  console.log(`📤 رسالة أرسلها البوت : ${m.text || m.message}`);
   return; // لا ترد على نفسك
 }
 
