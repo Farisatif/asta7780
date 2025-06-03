@@ -30,6 +30,8 @@ this.pushMessage(chatUpdate.messages).catch(console.error)
 let m = chatUpdate.messages[chatUpdate.messages.length - 1]
 if (!m || !m.message) return
 
+if (m.key.remoteJid.endsWith('@g.us')) return
+
 // ✅ تجاهل الحالة والرسائل من البوت
 
 this.msgqueque = this.msgqueque || []
