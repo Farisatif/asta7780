@@ -31,11 +31,6 @@ let m = chatUpdate.messages[chatUpdate.messages.length - 1]
 if (!m || !m.message) return
 
 // ✅ تجاهل الحالة والرسائل من البوت
-if (m.key.fromMe) return
-if (m.key.remoteJid === 'status@broadcast') return
-
-// ✅ تجاهل الرسائل من القروبات
-if (m.key.remoteJid.endsWith('@g.us')) return
 
 this.msgqueque = this.msgqueque || []
 this.pushMessage(chatUpdate.messages).catch(console.error)
