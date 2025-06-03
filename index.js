@@ -10,6 +10,7 @@ import cfonts from 'cfonts'
 import { createInterface } from 'readline'
 import yargs from 'yargs'
 import { EventEmitter } from 'events'
+import dns from 'dns'
 
 EventEmitter.defaultMaxListeners = 20 // حل مشكلة MaxListenersExceeded
 
@@ -34,10 +35,21 @@ say('ASTA', {
 
 let isRunning = false
 
+// دالة لفحص اتصال الانترنت عبر محاولة التحقق من dns جوجل
+function checkInternet(cb) {
+  dns.lookup('google.com', (err) => {
+    if (err && err.code == "ENOTFOUND") {
+      cb(false)
+    } else {
+      cb(true)
+    }
+  })
+}
+
 /**
  * Start a js file
- * @param {String} file `path/to/file`
- */
+  * @param {String} file `path/to/file`
+   */
 function start(file) {
   if (isRunning) return
   isRunning = true
@@ -89,4 +101,18 @@ function start(file) {
   }
 }
 
-start('main.js')
+// دالة لإعادة محاولة تشغيل البوت فقط إذا كان النت شغال
+function startWithInternetCheck() {
+  checkInternet((isConnected) => {
+    if (isConnected) {
+      console.log('✅ الإنترنت متصل، جاري تشغيل البوت...')
+      start('main.js')
+    } else {
+      console.log('❌ لا يوجد اتصال بالإنترنت، سيتم إعادة المحاولة بعد 5 ثواني...')
+      setTimeout(startWithInternetCheck, 5000)
+    }
+  })
+}
+process.on('uncaughtException', console.error)
+process.on('unhandledRejection', console.error)
+startWithInternetCheck()

@@ -45,7 +45,7 @@ global.tiempo = d.toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', 
 // توقيعات وخصائص إضافية
 global.wm2 = `▸ ${dia} ${fecha}\n▸ aima - 𝙱𝚘𝚝`
 global.gt = '★𝐒𝐇𝐀𝐃𝐎𝐖 - 𝙱𝚘𝚝★'
-global.md = 'https://github.com/BrunoSobrino/TheMystic-Bot-MD'
+global.md = 'https://github.com/Farisatif/Zeref'
 global.waitt = '*[❗] Ƈᴀʀɢᴀɴᴅᴏ, ᴀɢᴜᴀʀᴅᴇ ᴜɴ ᴍᴏᴍᴇɴᴛᴏ...*'
 global.waittt = global.waitt
 global.waitttt = global.waitt

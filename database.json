@@ -2719,7 +2719,7 @@
       "emas": 0,
       "emerald": 0,
       "esteh": 0,
-      "exp": 1238,
+      "exp": 2890,
       "expg": 0,
       "exphero": 0,
       "expired": 0,
@@ -3063,7 +3063,7 @@
       "psepick": 0,
       "robo": 0,
       "roboxp": 0,
-      "lastCommandTime": 1748797716937,
+      "lastCommandTime": 1748917948276,
       "commandCount": 1
     },
     "967772050980@s.whatsapp.net": {
@@ -6997,7 +6997,7 @@
       "emas": 0,
       "emerald": 0,
       "esteh": 0,
-      "exp": 154,
+      "exp": 802,
       "expg": 0,
       "exphero": 0,
       "expired": 0,
@@ -7340,7 +7340,9 @@
       "psenjata": 0,
       "psepick": 0,
       "robo": 0,
-      "roboxp": 0
+      "roboxp": 0,
+      "lastCommandTime": 1748904466986,
+      "commandCount": 1
     },
     "967773360830@s.whatsapp.net": {
       "afk": -1,
@@ -8168,22 +8170,70 @@
       "lastSuccess": 1748740521302
     },
     "hd.js": {
-      "total": 9,
+      "total": 10,
       "success": 6,
-      "last": 1748797370555,
+      "last": 1748837595245,
       "lastSuccess": 1748797370555
     },
     "anime.js": {
-      "total": 4,
-      "success": 3,
-      "last": 1748740887511,
-      "lastSuccess": 1748740887511
+      "total": 6,
+      "success": 4,
+      "last": 1748883839900,
+      "lastSuccess": 1748883796079
     },
     "tr.js": {
       "total": 3,
       "success": 1,
       "last": 1748741034777,
       "lastSuccess": 1748741034777
+    },
+    "reminder.js": {
+      "total": 18,
+      "success": 18,
+      "last": 1748917904852,
+      "lastSuccess": 1748917904852
+    },
+    "تذكيراتي.js": {
+      "total": 3,
+      "success": 0,
+      "last": 1748897508425,
+      "lastSuccess": 0
+    },
+    "قائمه.js": {
+      "total": 19,
+      "success": 19,
+      "last": 1748917948563,
+      "lastSuccess": 1748917948563
+    },
+    "حذف _تذكير.js": {
+      "total": 3,
+      "success": 3,
+      "last": 1748899015356,
+      "lastSuccess": 1748899015356
+    },
+    "حذف_جميع_التذكيرات.js": {
+      "total": 4,
+      "success": 4,
+      "last": 1748917877476,
+      "lastSuccess": 1748917877476
+    },
+    "تعديل_تذكير.js": {
+      "total": 9,
+      "success": 9,
+      "last": 1748917940904,
+      "lastSuccess": 1748917940904
+    },
+    "منبه.js": {
+      "total": 5,
+      "success": 5,
+      "last": 1748917113430,
+      "lastSuccess": 1748917113430
+    },
+    "هلا.js": {
+      "total": 5,
+      "success": 5,
+      "last": 1748900939285,
+      "lastSuccess": 1748900939285
     }
   },
   "msgs": {},

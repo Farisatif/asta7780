@@ -1,32 +1,35 @@
 process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = '0';
 import './config.js';
 import './api.js';
-import {createRequire} from 'module';
-import path, {join} from 'path';
-import {fileURLToPath, pathToFileURL} from 'url';
-import {platform} from 'process';
+import { createRequire } from 'module';
+import path, { join } from 'path';
+import { fileURLToPath, pathToFileURL } from 'url';
+import { platform } from 'process';
 import * as ws from 'ws';
-import {readdirSync, statSync, unlinkSync, existsSync, readFileSync, rmSync, watch} from 'fs';
+import { readdirSync, statSync, unlinkSync, existsSync, readFileSync, rmSync, watch } from 'fs';
 import yargs from 'yargs';
-import {spawn} from 'child_process';
+import { spawn } from 'child_process';
 import lodash from 'lodash';
 import chalk from 'chalk';
 import syntaxerror from 'syntax-error';
-import {tmpdir} from 'os';
-import {format} from 'util';
+import { tmpdir } from 'os';
+import { format } from 'util';
 import P from 'pino';
 import pino from 'pino';
-import {Boom} from '@hapi/boom';
-import {makeWASocket, protoType, serialize} from './lib/simple.js';
-import {Low, JSONFile} from 'lowdb';
-import {mongoDB, mongoDBV2} from './lib/mongoDB.js';
+import { Boom } from '@hapi/boom';
+import { makeWASocket, protoType, serialize } from './lib/simple.js';
+import { Low, JSONFile } from 'lowdb';
+import { mongoDB, mongoDBV2 } from './lib/mongoDB.js';
 import store from './lib/store.js';
-const {proto} = (await import('@whiskeysockets/baileys')).default;
-const {DisconnectReason, useMultiFileAuthState, MessageRetryMap, fetchLatestBaileysVersion, makeCacheableSignalKeyStore} = await import('@whiskeysockets/baileys');
-const {CONNECTING} = ws;
-const {chain} = lodash;
+const { proto } = (await import('@whiskeysockets/baileys')).default;
+const { DisconnectReason, useMultiFileAuthState, MessageRetryMap, fetchLatestBaileysVersion, makeCacheableSignalKeyStore } = await import('@whiskeysockets/baileys');
+const { CONNECTING } = ws;
+const { chain } = lodash;
 const PORT = process.env.PORT || process.env.SERVER_PORT || 3000;
 process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = '0';
+
+
+
 protoType();
 serialize();
 
@@ -38,9 +41,9 @@ global.__filename = function filename(pathURL = import.meta.url, rmPrefix = plat
   return createRequire(dir);
 };
 
-global.API = (name, path = '/', query = {}, apikeyqueryname) => (name in global.APIs ? global.APIs[name] : name) + path + (query || apikeyqueryname ? '?' + new URLSearchParams(Object.entries({...query, ...(apikeyqueryname ? {[apikeyqueryname]: global.APIKeys[name in global.APIs ? global.APIs[name] : name]} : {})})) : '');
+global.API = (name, path = '/', query = {}, apikeyqueryname) => (name in global.APIs ? global.APIs[name] : name) + path + (query || apikeyqueryname ? '?' + new URLSearchParams(Object.entries({ ...query, ...(apikeyqueryname ? { [apikeyqueryname]: global.APIKeys[name in global.APIs ? global.APIs[name] : name] } : {}) })) : '');
 
-global.timestamp = {start: new Date};
+global.timestamp = { start: new Date };
 global.videoList = [];
 global.videoListXXX = [];
 
@@ -51,10 +54,10 @@ global.prefix = new RegExp('^[' + (opts['prefix'] || '*/i!#$%+£¢€¥^°=¶∆
 
 global.db = new Low(/https?:\/\//.test(opts['db'] || '') ? new cloudDBAdapter(opts['db']) : new JSONFile(`${opts._[0] ? opts._[0] + '_' : ''}database.json`));
 
-global.DATABASE = global.db; 
+global.DATABASE = global.db;
 global.loadDatabase = async function loadDatabase() {
   if (global.db.READ) {
-    return new Promise((resolve) => setInterval(async function() {
+    return new Promise((resolve) => setInterval(async function () {
       if (!global.db.READ) {
         clearInterval(this);
         resolve(global.db.data == null ? global.loadDatabase() : global.db.data);
@@ -84,10 +87,10 @@ global.chatgpt = new Low(new JSONFile(path.join(__dirname, '/db/chatgpt.json')))
 global.loadChatgptDB = async function loadChatgptDB() {
   if (global.chatgpt.READ) {
     return new Promise((resolve) =>
-      setInterval(async function() {
+      setInterval(async function () {
         if (!global.chatgpt.READ) {
           clearInterval(this);
-          resolve( global.chatgpt.data === null ? global.loadChatgptDB() : global.chatgpt.data );
+          resolve(global.chatgpt.data === null ? global.loadChatgptDB() : global.chatgpt.data);
         }
       }, 1 * 1000));
   }
@@ -106,16 +109,16 @@ loadChatgptDB();
 /* ------------------------------------------------*/
 
 global.authFile = `Zeref`;
-const {state, saveState, saveCreds} = await useMultiFileAuthState(global.authFile);
+const { state, saveState, saveCreds } = await useMultiFileAuthState(global.authFile);
 const msgRetryCounterMap = (MessageRetryMap) => { };
-const {version} = await fetchLatestBaileysVersion();
+const { version } = await fetchLatestBaileysVersion();
 
 const connectionOptions = {
   printQRInTerminal: true,
   patchMessageBeforeSending: (message) => {
-    const requiresPatch = !!( message.buttonsMessage || message.templateMessage || message.listMessage );
+    const requiresPatch = !!(message.buttonsMessage || message.templateMessage || message.listMessage);
     if (requiresPatch) {
-      message = {viewOnceMessage: {message: {messageContextInfo: {deviceListMetadataVersion: 2, deviceListMetadata: {}}, ...message}}};
+      message = { viewOnceMessage: { message: { messageContextInfo: { deviceListMetadataVersion: 2, deviceListMetadata: {} }, ...message } } };
     }
     return message;
   },
@@ -127,10 +130,10 @@ const connectionOptions = {
     return proto.Message.fromObject({});
   },
   msgRetryCounterMap,
-  logger: pino({level: 'silent'}),
+  logger: pino({ level: 'silent' }),
   auth: {
     creds: state.creds,
-    keys: makeCacheableSignalKeyStore(state.keys, pino({level: 'silent'})),
+    keys: makeCacheableSignalKeyStore(state.keys, pino({ level: 'silent' })),
   },
   browser: ['Zeref', 'Safari', '1.0.0'],
   version,
@@ -184,59 +187,64 @@ function clearTmp() {
 }
 
 function purgeSession() {
-let prekey = []
-let directorio = readdirSync("./Zeref")
-let filesFolderPreKeys = directorio.filter(file => {
-return file.startsWith('pre-key-') /*|| file.startsWith('session-') || file.startsWith('sender-') || file.startsWith('app-') */
-})
-prekey = [...prekey, ...filesFolderPreKeys]
-filesFolderPreKeys.forEach(files => {
-unlinkSync(`./Zeref/${files}`)
-})
-} 
+  let prekey = []
+  let directorio = readdirSync("./Zeref")
+  let filesFolderPreKeys = directorio.filter(file => {
+    return file.startsWith('pre-key-') /*|| file.startsWith('session-') || file.startsWith('sender-') || file.startsWith('app-') */
+  })
+  prekey = [...prekey, ...filesFolderPreKeys]
+  filesFolderPreKeys.forEach(files => {
+    unlinkSync(`./Zeref/${files}`)
+  })
+}
 
 function purgeSessionSB() {
-try {
-let listaDirectorios = readdirSync('./jadibts/');
-let SBprekey = []
-listaDirectorios.forEach(directorio => {
-if (statSync(`./jadibts/${directorio}`).isDirectory()) {
-let DSBPreKeys = readdirSync(`./jadibts/${directorio}`).filter(fileInDir => {
-return fileInDir.startsWith('pre-key-') /*|| fileInDir.startsWith('app-') || fileInDir.startsWith('session-')*/
-})
-SBprekey = [...SBprekey, ...DSBPreKeys]
-DSBPreKeys.forEach(fileInDir => {
-unlinkSync(`./jadibts/${directorio}/${fileInDir}`)
-})
+  try {
+    let listaDirectorios = readdirSync('./jadibts/');
+    let SBprekey = []
+    listaDirectorios.forEach(directorio => {
+      if (statSync(`./jadibts/${directorio}`).isDirectory()) {
+        let DSBPreKeys = readdirSync(`./jadibts/${directorio}`).filter(fileInDir => {
+          return fileInDir.startsWith('pre-key-') /*|| fileInDir.startsWith('app-') || fileInDir.startsWith('session-')*/
+        })
+        SBprekey = [...SBprekey, ...DSBPreKeys]
+        DSBPreKeys.forEach(fileInDir => {
+          unlinkSync(`./jadibts/${directorio}/${fileInDir}`)
+        })
+      }
+    })
+    if (SBprekey.length === 0) return; //console.log(chalk.cyanBright(`=> No hay archivos por eliminar.`))
+  } catch (err) {
+    console.log(chalk.bold.red(`=> Algo salio mal durante la eliminación, archivos no eliminados`))
+  }
 }
-})
-if (SBprekey.length === 0) return; //console.log(chalk.cyanBright(`=> No hay archivos por eliminar.`))
-} catch (err) {
-console.log(chalk.bold.red(`=> Algo salio mal durante la eliminación, archivos no eliminados`))
-}}
 
 function purgeOldFiles() {
-const directories = ['./Zeref/', './jadibts/']
-const oneHourAgo = Date.now() - (60 * 60 * 1000)
-directories.forEach(dir => {
-readdirSync(dir, (err, files) => {
-if (err) throw err
-files.forEach(file => {
-const filePath = path.join(dir, file)
-stat(filePath, (err, stats) => {
-if (err) throw err;
-if (stats.isFile() && stats.mtimeMs < oneHourAgo && file !== 'creds.json') { 
-unlinkSync(filePath, err => {  
-if (err) throw err
-console.log(chalk.bold.green(`Archivo ${file} borrado con éxito`))
-})
-} else {  
-console.log(chalk.bold.red(`Archivo ${file} no borrado` + err))
-} }) }) }) })
+  const directories = ['./Zeref/', './jadibts/']
+  const oneHourAgo = Date.now() - (60 * 60 * 1000)
+  directories.forEach(dir => {
+    readdirSync(dir, (err, files) => {
+      if (err) throw err
+      files.forEach(file => {
+        const filePath = path.join(dir, file)
+        stat(filePath, (err, stats) => {
+          if (err) throw err;
+          if (stats.isFile() && stats.mtimeMs < oneHourAgo && file !== 'creds.json') {
+            unlinkSync(filePath, err => {
+              if (err) throw err
+              console.log(chalk.bold.green(`Archivo ${file} borrado con éxito`))
+            })
+          } else {
+            console.log(chalk.bold.red(`Archivo ${file} no borrado` + err))
+          }
+        })
+      })
+    })
+  })
 }
 
 async function connectionUpdate(update) {
-  const {connection, lastDisconnect, isNewLogin} = update;
+  const { connection, lastDisconnect, isNewLogin } = update;
   global.stopped = connection;
   if (isNewLogin) conn.isInit = true;
   const code = lastDisconnect?.error?.output?.statusCode || lastDisconnect?.error?.output?.payload?.statusCode;
@@ -252,34 +260,34 @@ async function connectionUpdate(update) {
   if (connection == 'open') {
     console.log(chalk.yellow('▣──────────────────────────────···\n│\n│❧ 𝙲𝙾𝙽𝙴𝙲𝚃𝙰𝙳𝙾 𝙲𝙾𝚁𝚁𝙴𝙲𝚃𝙰𝙼𝙴𝙽𝚃𝙴 𝙰𝙻 𝚆𝙷𝙰𝚃𝚂𝙰𝙿𝙿 ✅\n│\n▣──────────────────────────────···'));
   }
-let reason = new Boom(lastDisconnect?.error)?.output?.statusCode;
-if (connection === 'close') {
+  let reason = new Boom(lastDisconnect?.error)?.output?.statusCode;
+  if (connection === 'close') {
     if (reason === DisconnectReason.badSession) {
-        conn.logger.error(`[ ⚠ ] Sesión incorrecta, por favor elimina la carpeta ${global.authFile} y escanea nuevamente.`);
-        //process.exit();
+      conn.logger.error(`[ ⚠ ] Sesión incorrecta, por favor elimina la carpeta ${global.authFile} y escanea nuevamente.`);
+      //process.exit();
     } else if (reason === DisconnectReason.connectionClosed) {
-        conn.logger.warn(`[ ⚠ ] Conexión cerrada, reconectando...`);
-        process.send('reset');
+      conn.logger.warn(`[ ⚠ ] Conexión cerrada, reconectando...`);
+      process.send('reset');
     } else if (reason === DisconnectReason.connectionLost) {
-        conn.logger.warn(`[ ⚠ ] Conexión perdida con el servidor, reconectando...`);
-        process.send('reset');
+      conn.logger.warn(`[ ⚠ ] Conexión perdida con el servidor, reconectando...`);
+      process.send('reset');
     } else if (reason === DisconnectReason.connectionReplaced) {
-        conn.logger.error(`[ ⚠ ] Conexión reemplazada, se ha abierto otra nueva sesión. Por favor, cierra la sesión actual primero.`);
-        //process.exit();
+      conn.logger.error(`[ ⚠ ] Conexión reemplazada, se ha abierto otra nueva sesión. Por favor, cierra la sesión actual primero.`);
+      //process.exit();
     } else if (reason === DisconnectReason.loggedOut) {
-        conn.logger.error(`[ ⚠ ] Conexion cerrada, por favor elimina la carpeta ${global.authFile} y escanea nuevamente.`);
-        //process.exit();
+      conn.logger.error(`[ ⚠ ] Conexion cerrada, por favor elimina la carpeta ${global.authFile} y escanea nuevamente.`);
+      //process.exit();
     } else if (reason === DisconnectReason.restartRequired) {
-        conn.logger.info(`[ ⚠ ] Reinicio necesario, reinicie el servidor si presenta algún problema.`);
-        //process.send('reset');
+      conn.logger.info(`[ ⚠ ] Reinicio necesario, reinicie el servidor si presenta algún problema.`);
+      //process.send('reset');
     } else if (reason === DisconnectReason.timedOut) {
-        conn.logger.warn(`[ ⚠ ] Tiempo de conexión agotado, reconectando...`);
-        process.send('reset');
+      conn.logger.warn(`[ ⚠ ] Tiempo de conexión agotado, reconectando...`);
+      process.send('reset');
     } else {
-        conn.logger.warn(`[ ⚠ ] Razón de desconexión desconocida. ${reason || ''}: ${connection || ''}`);
-        //process.exit();
+      conn.logger.warn(`[ ⚠ ] Razón de desconexión desconocida. ${reason || ''}: ${connection || ''}`);
+      //process.exit();
     }
-}
+  }
   /*if (connection == 'close') {
     console.log(chalk.yellow(`🚩ㅤConexion cerrada, por favor borre la carpeta ${global.authFile} y reescanee el codigo QR`));
   }*/
@@ -289,7 +297,7 @@ process.on('uncaughtException', console.error);
 
 let isInit = true;
 let handler = await import('./handler.js');
-global.reloadHandler = async function(restatConn) {
+global.reloadHandler = async function (restatConn) {
   try {
     const Handler = await import(`./handler.js?update=${Date.now()}`).catch(console.error);
     if (Object.keys(Handler || {}).length) handler = Handler;
@@ -302,7 +310,7 @@ global.reloadHandler = async function(restatConn) {
       global.conn.ws.close();
     } catch { }
     conn.ev.removeAllListeners();
-    global.conn = makeWASocket(connectionOptions, {chats: oldChats});
+    global.conn = makeWASocket(connectionOptions, { chats: oldChats });
     isInit = true;
   }
   if (!isInit) {
@@ -314,14 +322,14 @@ global.reloadHandler = async function(restatConn) {
     conn.ev.off('creds.update', conn.credsUpdate);
   }
 
-conn.welcome = ''
+  conn.welcome = ''
   conn.bye = ''
-conn.spromote = ''
-conn.sdemote = ''
-conn.sDesc = ''
-conn.sSubject = ''
-conn.sIcon = ''
-conn.sRevoke = '';
+  conn.spromote = ''
+  conn.sdemote = ''
+  conn.sDesc = ''
+  conn.sSubject = ''
+  conn.sIcon = ''
+  conn.sRevoke = '';
 
   conn.handler = handler.handler.bind(global.conn);
   conn.participantsUpdate = handler.participantsUpdate.bind(global.conn);
@@ -446,7 +454,7 @@ async function _quickTest() {
       })]);
   }));
   const [ffmpeg, ffprobe, ffmpegWebp, convert, magick, gm, find] = test;
-  const s = global.support = {ffmpeg, ffprobe, ffmpegWebp, convert, magick, gm, find};
+  const s = global.support = { ffmpeg, ffprobe, ffmpegWebp, convert, magick, gm, find };
   Object.freeze(global.support);
 }
 setInterval(async () => {
@@ -469,6 +477,7 @@ setInterval(async () => {
   await purgeOldFiles();
   console.log(chalk.cyanBright(`\n▣────────[ AUTO_PURGE_OLDFILES ]───────────···\n│\n▣─❧ ARCHIVOS ELIMINADOS ✅\n│\n▣────────────────────────────────────···\n`));
 }, 1000 * 60 * 60);
+let stopped = false;
 setInterval(async () => {
   if (stopped === 'close' || !conn || !conn.user) return;
   const status = global.db.data.settings[conn.user.jid] || {};
