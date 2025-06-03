@@ -30,14 +30,17 @@ this.pushMessage(chatUpdate.messages).catch(console.error)
 let m = chatUpdate.messages[chatUpdate.messages.length - 1]
 if (!m || !m.message) return
 	
-if (m.key.fromMe) return
-if (m.key.remoteJid === 'status@broadcast') return
+if (m.key.fromMe) {
+  console.log(`📤 رسالة أرسلها البوت: ${m.text || m.message}`);
+  return; // لا ترد على نفسك
+}
 
-// ✅ تجاهل الرسائل من القروبات
+if (m.key.remoteJid === 'status@broadcast') return
 if (m.key.remoteJid.endsWith('@g.us')) return
 
-// ✅ تجاهل الحالة والرسائل من البوت
+// باقي كود الرد هنا 👇
 
+	
 this.msgqueque = this.msgqueque || []
 this.pushMessage(chatUpdate.messages).catch(console.error)
 
